@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2d327d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/d/d2/SBB_logo.svg">
     <title>SBB Live Board</title>
     <link rel="icon" type="image/png" href="image.png">
     <style>
@@ -181,6 +186,9 @@
     </div>
 
     <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
         // 1. CLOCK LOGIC
         const markersContainer = document.getElementById('markers');
         for (let i = 0; i < 60; i++) {
