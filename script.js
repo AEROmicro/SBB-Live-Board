@@ -220,5 +220,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('entryInput').value = maxEntries;
 });
 
-setInterval(fetchBoard, 10000);
+setInterval(fetchBoard, 30000);
 setInterval(fetchWeather, 600000);
