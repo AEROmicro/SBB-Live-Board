@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="image.png">
-    <title>SBB Departure Board</title>
+    <title>SBB Live Board</title>
     <link rel="icon" type="image/png" href="image.png">
     <style>
         :root {
@@ -154,8 +154,6 @@
             padding: 12px 20px; background: #eee; color: black; border: none; 
             font-weight: bold; cursor: pointer; border-radius: 2px; transition: 0.2s;
         }
-        
-        /* HOVER EFFECT: BUTTONS TURN RED */
         button.update-btn:hover, button.util-btn:hover {
             background: var(--sbb-red);
             color: white;
@@ -167,8 +165,6 @@
             margin-bottom: 5px; border-radius: 2px; overflow: hidden;
         }
         .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; }
-        
-        /* HOVER EFFECT: AUTOCOMPLETE ITEMS TURN RED */
         .autocomplete-item:hover { background-color: var(--sbb-red); color: white; }
 
         .copyright { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 20px; line-height: 1.4; }
@@ -251,6 +247,7 @@
         let currentTempC = 0;
         let unit = localStorage.getItem('tempUnit') || 'C';
         let timeZone = localStorage.getItem('timeZone') || 'local';
+        let currentCoords = { lat: 47.378177, lon: 8.540192 }; // Default to Zurich HB
 
         // SBB Clock Logic
         const markersContainer = document.getElementById('markers');
@@ -263,28 +260,21 @@
 
         function runClock() {
             let now = new Date();
-            
             if (timeZone !== 'local') {
                 now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Zurich"}));
             }
-
             const ms = now.getMilliseconds();
             const sec = now.getSeconds();
             const min = now.getMinutes();
             const hr = now.getHours();
 
-            // SMOOTH GLIDE LOGIC
-            // Second hand: total milliseconds into the minute divided by 60,000 * 360 degrees
             const secondSmooth = ((sec * 1000) + ms) / 60000 * 360;
-            // Minute hand: minutes + seconds/60
             const minuteSmooth = (min * 6) + (sec / 10);
-            // Hour hand: hours + minutes/60
             const hourSmooth = (hr % 12 * 30) + (min * 0.5);
 
             document.getElementById('secHand').style.transform = `translateY(-28px) rotate(${secondSmooth}deg)`;
             document.getElementById('minHand').style.transform = `translateY(-37px) rotate(${minuteSmooth}deg)`;
             document.getElementById('hourHand').style.transform = `translateY(-25px) rotate(${hourSmooth}deg)`;
-            
             requestAnimationFrame(runClock);
         }
         runClock();
@@ -334,13 +324,16 @@
                 </div>`).join('') : '<div style="padding:10px">No favorites saved</div>';
         }
 
-        async function fetchWeather(lat, lon) {
+        async function fetchWeather() {
             try {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${currentCoords.lat}&longitude=${currentCoords.lon}&current_weather=true`);
                 const data = await res.json();
                 currentTempC = data.current_weather.temperature;
                 updateTempDisplay();
-            } catch(e) {}
+                console.log("Weather updated for:", currentCoords);
+            } catch(e) {
+                console.error("Weather fetch failed");
+            }
         }
 
         function updateTempDisplay() {
@@ -381,7 +374,11 @@
                 if (data.station) {
                     document.getElementById('displayStation').innerText = data.station.name;
                     localStorage.setItem('lastStation', data.station.name);
-                    if(data.station.coordinate) fetchWeather(data.station.coordinate.x, data.station.coordinate.y);
+                    
+                    if(data.station.coordinate) {
+                        currentCoords = { lat: data.station.coordinate.x, lon: data.station.coordinate.y };
+                        fetchWeather(); // Fetch immediately when station changes
+                    }
                 }
 
                 const tbody = document.getElementById('boardBody');
@@ -395,33 +392,18 @@
                 data.stationboard.forEach(train => {
                     const stop = train.stop || {};
                     if (!stop.departure) return;
-
                     let depTime = new Date(stop.departure);
-                    let timeStr = "";
-
-                    if (timeZone === 'local') {
-                        timeStr = depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    } else {
-                        timeStr = depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' });
-                    }
+                    let timeStr = timeZone === 'local' 
+                        ? depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' });
                     
                     const delayStr = stop.delay ? `<span class="delay">+${stop.delay}′</span>` : '';
                     const cat = train.category || "";
                     const num = train.number || "";
                     const badge = (cat + num) || "Zug";
-                    
-                    let dest = train.to;
-                    if (!dest || dest === "null") {
-                        dest = (train.passList && train.passList.length > 0) 
-                               ? train.passList[train.passList.length - 1].station.name 
-                               : badge;
-                    }
-
-                    const viaList = (train.passList || []).slice(1, 4)
-                        .map(p => p.station.name)
-                        .filter(n => n && n !== dest);
+                    let dest = train.to || (train.passList?.length > 0 ? train.passList[train.passList.length - 1].station.name : badge);
+                    const viaList = (train.passList || []).slice(1, 4).map(p => p.station.name).filter(n => n && n !== dest);
                     const viaText = viaList.length > 0 ? 'via ' + viaList.join(' - ') : '';
-
                     let lineClass = cat === 'IR' ? 'line-IR' : (cat === 'IC' ? 'line-IC' : 'line-S');
 
                     newRows += `
@@ -436,17 +418,17 @@
                         </tr>`;
                 });
                 tbody.innerHTML = newRows;
-                
-                const now = new Date();
-                updateDisplay.innerText = `Zuletzt aktualisiert: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
-                
+                updateDisplay.innerText = `Zuletzt aktualisiert: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
             } catch (e) { 
                 updateDisplay.innerText = "Verbindungsfehler...";
             }
         }
 
-        setInterval(fetchBoard, 10000); 
-        fetchBoard();
+        // Intervals
+        setInterval(fetchBoard, 10000);   // Departures every 10 seconds
+        setInterval(fetchWeather, 600000); // Weather every 10 minutes (600,000 ms)
+        
+        fetchBoard(); // Initial load
     </script>
 </body>
 </html>
