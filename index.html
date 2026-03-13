@@ -9,166 +9,8 @@
     <link rel="apple-touch-icon" href="image.png">
     <title>SBB Live Board</title>
     <link rel="icon" type="image/png" href="image.png">
-    <style>
-        :root {
-            --sbb-blue: #2d327d;
-            --sbb-red: #eb0000;
-            --sbb-white: #ffffff;
-            --sbb-dark-grey: #1a1a1a;
-            --clock-size: 100px;
-            --buffer: 4px; 
-        }
-
-        body {
-            background-color: var(--sbb-dark-grey);
-            color: var(--sbb-white);
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .board {
-            background-color: var(--sbb-blue);
-            width: 100%;
-            max-width: 1100px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background: rgba(0,0,0,0.15);
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-        }
-
-        .sbb-logo-text { background: var(--sbb-red); padding: 5px 12px; font-weight: 900; font-size: 1rem; margin-right: 15px; }
-        .station-container { display: flex; flex-direction: column; }
-        .station-name { font-size: 2rem; font-weight: bold; }
-        .temp-header { font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
-
-        /* --- CLOCK --- */
-        .clock-face {
-            width: var(--clock-size);
-            height: var(--clock-size);
-            background-color: var(--sbb-white);
-            border-radius: 50%;
-            position: relative;
-            flex-shrink: 0;
-        }
-        
-        #markers { position: absolute; width: 100%; height: 100%; }
-        .marker {
-            position: absolute;
-            left: 50%;
-            background: black;
-            transform-origin: 50% calc(50px - var(--buffer)); 
-        }
-        .marker.hour { width: 4px; height: 12px; margin-left: -2px; top: var(--buffer); }
-        .marker.min { width: 1.5px; height: 4px; margin-left: -0.75px; top: var(--buffer); }
-
-        .hand { position: absolute; left: 50%; top: 50%; background: black; }
-        .hour-hand { width: 6px; height: 32px; margin-left: -3px; transform: translateY(-25px); transform-origin: 50% 25px; z-index: 2; }
-        .minute-hand { width: 6px; height: 42px; margin-left: -3px; transform: translateY(-37px); transform-origin: 50% 37px; z-index: 3; }
-        .second-hand { 
-            width: 1.5px; height: 38px; margin-left: -0.75px; 
-            background: var(--sbb-red); 
-            transform: translateY(-28px); transform-origin: 50% 28px; z-index: 4; 
-        }
-        .second-hand::after {
-            content: ''; position: absolute; top: 0; left: 50%; width: 10px; height: 10px;
-            background: var(--sbb-red); border-radius: 50%; transform: translate(-50%, -5px);
-        }
-
-        /* --- TABLE --- */
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { text-align: left; padding: 12px 30px; font-size: 0.8rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-        td { padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; overflow: hidden; vertical-align: middle; }
-        
-        .time-cell { font-size: 1.6rem; font-weight: bold; width: 120px; }
-        .line-badge { display: inline-block; padding: 2px 6px; font-weight: 900; font-size: 1rem; margin-right: 12px; border-radius: 2px; min-width: 40px; text-align: center; }
-        .line-IR { background: var(--sbb-red); color: white; }
-        .line-IC { background: white; color: var(--sbb-red); border: 2px solid var(--sbb-red); }
-        .line-S { background: white; color: var(--sbb-blue); border: 1.5px solid var(--sbb-blue); }
-        
-        .dest-cell { font-size: 1.6rem; font-weight: bold; }
-        .via-text { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
-        .track-box { background: white; color: var(--sbb-blue); padding: 4px 12px; font-weight: 900; font-size: 1.4rem; border-radius: 2px; }
-        .delay { color: #ff5555; margin-left: 8px; font-size: 1rem; }
-
-        .last-updated {
-            padding: 10px 30px;
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.4);
-            text-align: right;
-            background: rgba(0,0,0,0.1);
-        }
-
-        /* --- SETTINGS POPUP --- */
-        #settingsOverlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;
-        }
-        .settings-content {
-            background: #222; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; border: 1px solid #444;
-        }
-        .settings-content h2 { margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .setting-row { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; }
-        .fav-list { background: #333; border-radius: 4px; padding: 5px; max-height: 150px; overflow-y: auto; }
-        .fav-item { 
-            padding: 8px; border-bottom: 1px solid #444; 
-            display: flex; justify-content: space-between; align-items: center;
-            transition: background 0.2s;
-        }
-        .fav-item:hover { background: rgba(235, 0, 0, 0.1); }
-        .fav-item span { cursor: pointer; flex-grow: 1; }
-        .fav-del { color: var(--sbb-red); font-weight: bold; padding: 0 10px; cursor: pointer; }
-        
-        .close-settings { 
-            background: #eee; color: black; border: none; padding: 10px; width: 100%; 
-            font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;
-        }
-        .close-settings:hover { background: var(--sbb-red); color: white; }
-
-        /* --- SEARCH & BUTTONS --- */
-        .search-container {
-            position: relative;
-            margin-top: auto; 
-            width: 100%;
-            max-width: 600px;
-            padding-bottom: 20px;
-        }
-        .search-box { display: flex; gap: 10px; align-items: center; }
-        input { flex-grow: 1; padding: 12px; font-size: 1.1rem; border: none; border-radius: 2px; }
-        
-        button.update-btn, button.util-btn { 
-            padding: 12px 20px; background: #eee; color: black; border: none; 
-            font-weight: bold; cursor: pointer; border-radius: 2px; transition: 0.2s;
-        }
-        button.update-btn:hover, button.util-btn:hover {
-            background: var(--sbb-red);
-            color: white;
-        }
-        
-        #autocomplete-list { 
-            position: absolute; bottom: 100%; left: 0; right: 0; 
-            background: white; color: black; z-index: 1000; 
-            margin-bottom: 5px; border-radius: 2px; overflow: hidden;
-        }
-        .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; }
-        .autocomplete-item:hover { background-color: var(--sbb-red); color: white; }
-
-        .copyright { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 20px; line-height: 1.4; }
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -189,7 +31,7 @@
             </div>
         </div>
 
-        <table>
+        <div id="map"></div> <table>
             <thead>
                 <tr>
                     <th style="width: 15%;">Abfahrt</th>
@@ -212,7 +54,7 @@
         </div>
 
         <div class="copyright">
-            © ÆROforge 2026<br>
+            <a href="https://sites.google.com/view/aeroforge/" target="_blank" rel="noopener noreferrer">© ÆROforge 2026</a><br>
             All station data and SBB branding used under official terms.<br>
             Licensed under GNU GPLv3.
         </div>
@@ -221,13 +63,30 @@
     <div id="settingsOverlay">
         <div class="settings-content">
             <h2>Settings</h2>
+            
             <div class="setting-row">
-                <label>Unit:</label>
+                <label>Temperature Unit:</label>
                 <div style="display:flex; gap:10px;">
                     <button class="util-btn" style="flex:1" onclick="setTempUnit('C')">Celsius</button>
                     <button class="util-btn" style="flex:1" onclick="setTempUnit('F')">Fahrenheit</button>
                 </div>
             </div>
+
+            <div class="setting-row">
+                <label>Time Format:</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="util-btn" style="flex:1" onclick="setTimeFormat(false)">24h</button>
+                    <button class="util-btn" style="flex:1" onclick="setTimeFormat(true)">12h</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <label>Max Entries:</label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="number" id="entryInput" style="flex:1; padding: 10px;" value="15" onchange="updateEntryCount(this.value)">
+                </div>
+            </div>
+
             <div class="setting-row">
                 <label>Time Zone:</label>
                 <div style="display:flex; gap:10px;">
@@ -235,200 +94,17 @@
                     <button class="util-btn" style="flex:1" onclick="setTimeZone('Europe/Zurich')">Swiss</button>
                 </div>
             </div>
+
             <div class="setting-row">
                 <label>Favorites:</label>
                 <div class="fav-list" id="favListContainer"></div>
             </div>
+            
             <button class="close-settings" onclick="closeSettings()">Close</button>
         </div>
     </div>
 
-    <script>
-        let currentTempC = 0;
-        let unit = localStorage.getItem('tempUnit') || 'C';
-        let timeZone = localStorage.getItem('timeZone') || 'local';
-        let currentCoords = { lat: 47.378177, lon: 8.540192 }; // Default to Zurich HB
-
-        // SBB Clock Logic
-        const markersContainer = document.getElementById('markers');
-        for (let i = 0; i < 60; i++) {
-            const marker = document.createElement('div');
-            marker.className = (i % 5 === 0) ? 'marker hour' : 'marker min';
-            marker.style.transform = `rotate(${i * 6}deg)`;
-            markersContainer.appendChild(marker);
-        }
-
-        function runClock() {
-            let now = new Date();
-            if (timeZone !== 'local') {
-                now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Zurich"}));
-            }
-            const ms = now.getMilliseconds();
-            const sec = now.getSeconds();
-            const min = now.getMinutes();
-            const hr = now.getHours();
-
-            const secondSmooth = ((sec * 1000) + ms) / 60000 * 360;
-            const minuteSmooth = (min * 6) + (sec / 10);
-            const hourSmooth = (hr % 12 * 30) + (min * 0.5);
-
-            document.getElementById('secHand').style.transform = `translateY(-28px) rotate(${secondSmooth}deg)`;
-            document.getElementById('minHand').style.transform = `translateY(-37px) rotate(${minuteSmooth}deg)`;
-            document.getElementById('hourHand').style.transform = `translateY(-25px) rotate(${hourSmooth}deg)`;
-            requestAnimationFrame(runClock);
-        }
-        runClock();
-
-        function openSettings() { 
-            document.getElementById('settingsOverlay').style.display = 'flex'; 
-            renderFavorites();
-        }
-        function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
-
-        function setTempUnit(u) {
-            unit = u;
-            localStorage.setItem('tempUnit', u);
-            updateTempDisplay();
-        }
-
-        function setTimeZone(tz) {
-            timeZone = tz;
-            localStorage.setItem('timeZone', tz);
-            fetchBoard(); 
-        }
-
-        function toggleFavorite() {
-            let favs = JSON.parse(localStorage.getItem('favStations') || '[]');
-            const current = document.getElementById('displayStation').innerText;
-            if (!favs.includes(current)) {
-                favs.push(current);
-                localStorage.setItem('favStations', JSON.stringify(favs));
-                alert(current + " saved");
-            }
-        }
-
-        function removeFavorite(name) {
-            let favs = JSON.parse(localStorage.getItem('favStations') || '[]');
-            favs = favs.filter(f => f !== name);
-            localStorage.setItem('favStations', JSON.stringify(favs));
-            renderFavorites();
-        }
-
-        function renderFavorites() {
-            let favs = JSON.parse(localStorage.getItem('favStations') || '[]');
-            const container = document.getElementById('favListContainer');
-            container.innerHTML = favs.length ? favs.map(f => `
-                <div class="fav-item">
-                    <span onclick="selectStation('${f}'); closeSettings();">${f}</span>
-                    <div class="fav-del" onclick="removeFavorite('${f}')">x</div>
-                </div>`).join('') : '<div style="padding:10px">No favorites saved</div>';
-        }
-
-        async function fetchWeather() {
-            try {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${currentCoords.lat}&longitude=${currentCoords.lon}&current_weather=true`);
-                const data = await res.json();
-                currentTempC = data.current_weather.temperature;
-                updateTempDisplay();
-                console.log("Weather updated for:", currentCoords);
-            } catch(e) {
-                console.error("Weather fetch failed");
-            }
-        }
-
-        function updateTempDisplay() {
-            let displayTemp = unit === 'F' ? (currentTempC * 9/5) + 32 : currentTempC;
-            document.getElementById('tempDisplay').innerText = `${displayTemp.toFixed(1)}°${unit}`;
-        }
-
-        const input = document.getElementById('stationInput');
-        const list = document.getElementById('autocomplete-list');
-        const updateDisplay = document.getElementById('updateTime');
-
-        input.addEventListener('input', async () => {
-            const val = input.value;
-            if (val.length < 2) { list.innerHTML = ''; return; }
-            try {
-                const res = await fetch(`https://transport.opendata.ch/v1/locations?query=${encodeURIComponent(val)}`);
-                const data = await res.json();
-                list.innerHTML = (data.stations || []).slice(0, 5).map(s => 
-                    `<div class="autocomplete-item" onclick="selectStation('${s.name}')">${s.name}</div>`
-                ).join('');
-            } catch(e) {}
-        });
-
-        function selectStation(name) {
-            input.value = name;
-            list.innerHTML = '';
-            fetchBoard();
-        }
-
-        async function fetchBoard() {
-            const savedStation = localStorage.getItem('lastStation');
-            const stationQuery = input.value || savedStation || 'Zürich HB';
-            
-            try {
-                const res = await fetch(`https://transport.opendata.ch/v1/stationboard?station=${encodeURIComponent(stationQuery)}&limit=15&type=departure`);
-                const data = await res.json();
-                
-                if (data.station) {
-                    document.getElementById('displayStation').innerText = data.station.name;
-                    localStorage.setItem('lastStation', data.station.name);
-                    
-                    if(data.station.coordinate) {
-                        currentCoords = { lat: data.station.coordinate.x, lon: data.station.coordinate.y };
-                        fetchWeather(); // Fetch immediately when station changes
-                    }
-                }
-
-                const tbody = document.getElementById('boardBody');
-                let newRows = '';
-
-                if (!data.stationboard || data.stationboard.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 40px;">Keine Abfahrten gefunden</td></tr>';
-                    return;
-                }
-
-                data.stationboard.forEach(train => {
-                    const stop = train.stop || {};
-                    if (!stop.departure) return;
-                    let depTime = new Date(stop.departure);
-                    let timeStr = timeZone === 'local' 
-                        ? depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Zurich' });
-                    
-                    const delayStr = stop.delay ? `<span class="delay">+${stop.delay}′</span>` : '';
-                    const cat = train.category || "";
-                    const num = train.number || "";
-                    const badge = (cat + num) || "Zug";
-                    let dest = train.to || (train.passList?.length > 0 ? train.passList[train.passList.length - 1].station.name : badge);
-                    const viaList = (train.passList || []).slice(1, 4).map(p => p.station.name).filter(n => n && n !== dest);
-                    const viaText = viaList.length > 0 ? 'via ' + viaList.join(' - ') : '';
-                    let lineClass = cat === 'IR' ? 'line-IR' : (cat === 'IC' ? 'line-IC' : 'line-S');
-
-                    newRows += `
-                        <tr>
-                            <td class="time-cell">${timeStr}${delayStr}</td>
-                            <td class="dest-cell">
-                                <span class="line-badge ${lineClass}">${badge}</span>
-                                ${dest}
-                                <div class="via-text">${viaText}</div>
-                            </td>
-                            <td style="text-align: right;"><span class="track-box">${stop.platform || ''}</span></td>
-                        </tr>`;
-                });
-                tbody.innerHTML = newRows;
-                updateDisplay.innerText = `Zuletzt aktualisiert: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
-            } catch (e) { 
-                updateDisplay.innerText = "Verbindungsfehler...";
-            }
-        }
-
-        // Intervals
-        setInterval(fetchBoard, 10000);   // Departures every 10 seconds
-        setInterval(fetchWeather, 600000); // Weather every 10 minutes (600,000 ms)
-        
-        fetchBoard(); // Initial load
-    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
