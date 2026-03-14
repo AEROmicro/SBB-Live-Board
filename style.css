@@ -94,24 +94,18 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .modal-status { margin-bottom: 15px; font-size: 0.95rem; background: #333; padding: 10px; border-radius: 4px; }
 .text-red { color: #ff5555; font-weight: bold; }
 
-/* FIXED STAGNANT TIMELINE LINE */
+/* FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER */
 .route-list-wrapper {
     display: flex; 
     overflow-x: auto; 
     overflow-y: hidden;
-    padding: 20px 0 180px 0; /* Full width padding */
+    /* Removed large side padding to allow line to touch edges */
+    padding: 20px 0 180px 0; 
     position: relative;
     scrollbar-width: thin; 
     scrollbar-color: var(--sbb-red) #333;
     flex-grow: 1;
-    /* This creates the blue line as a permanent background part of the popout */
-    background-image: linear-gradient(var(--sbb-blue), var(--sbb-blue));
-    background-size: 100% 6px;
-    background-repeat: no-repeat;
-    background-position: center 72px;
 }
-.route-list-wrapper::-webkit-scrollbar { height: 8px; }
-.route-list-wrapper::-webkit-scrollbar-thumb { background: var(--sbb-red); border-radius: 4px; }
 
 .horiz-step {
     display: flex; 
@@ -120,6 +114,36 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     min-width: 120px; 
     position: relative; 
     z-index: 2;
+}
+
+/* The Stagnant Line */
+.horiz-step::before {
+    content: '';
+    position: absolute;
+    top: 52px; 
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--sbb-blue);
+    z-index: 1;
+}
+
+/* SMART EDGE EXTENSIONS */
+/* This makes the line fill the space to the modal edge, but no further */
+.horiz-step:first-child::before {
+    left: -500px; /* Large enough to hit the modal wall */
+    clip-path: inset(0 0 0 500px); /* Keeps it from actually being 500px long visually beyond the modal */
+    /* Alternative simpler way to ensure it hits the edge: */
+    left: -50vw; 
+}
+
+.horiz-step:last-child::before {
+    right: -50vw;
+}
+
+/* We use the wrapper to chop off any part of the line that goes outside the modal */
+.route-list-wrapper {
+    overflow-x: auto;
 }
 
 .horiz-time { font-weight: bold; font-size: 1rem; height: 40px; text-align: center; }
@@ -154,7 +178,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 .horiz-plat {
     position: absolute; 
-    top: 125px; 
+    top: 115px; 
     left: 55%; 
     transform: rotate(45deg); 
     transform-origin: top left;
@@ -166,107 +190,19 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     text-align: left;
 }
 
-/* Ensure modal header allows the badge and text to sit side-by-side */
-#modalTrainName {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin: 0;
-}
-
-/* Custom Settings Close Button (Non-default) */
-.close-btn {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: var(--sbb-white);
-    background: transparent;
-    cursor: pointer;
-    font-size: 1.2rem;
-    line-height: 1;
-    transition: all 0.2s ease;
-    padding: 0;
-    margin-left: 15px;
-    flex-shrink: 0;
-}
-
-.close-btn:hover {
-    background: var(--sbb-red);
-    border-color: var(--sbb-red);
-    color: white;
-    transform: scale(1.05);
-}
-
-/* Make the badge larger inside the modal header */
-#modalTrainName .line-badge {
-    font-size: 1.4rem;
-    padding: 6px 12px;
-    min-width: 60px;
-    border-radius: 4px;
-    margin-right: 5px;
-}
-
-/* Adjust the destination text next to the badge */
-#modalTrainName span:last-child {
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
-#modalTrainStatus {
-    margin-bottom: 20px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-}
-
-#modalTrainStatus strong {
-    color: var(--sbb-white);
-}
-
-/* Stats Grid Layout */
-.train-specs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.spec-item {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 10px;
-    border-radius: 6px;
-    border-left: 3px solid var(--sbb-red);
-}
-
-.spec-label {
-    display: block;
-    font-size: 0.75rem;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.spec-val {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #fff;
-}
-
-/* Status Badges */
-.status-badge {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    margin-right: 10px;
-    margin-top: 10px;
-}
-
+/* UI Elements */
+#modalTrainName { display: flex; align-items: center; gap: 15px; margin: 0; }
+.close-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3); color: var(--sbb-white); background: transparent; cursor: pointer; font-size: 1.2rem; line-height: 1; transition: all 0.2s ease; padding: 0; margin-left: 15px; flex-shrink: 0; }
+.close-btn:hover { background: var(--sbb-red); border-color: var(--sbb-red); color: white; transform: scale(1.05); }
+#modalTrainName .line-badge { font-size: 1.4rem; padding: 6px 12px; min-width: 60px; border-radius: 4px; margin-right: 5px; }
+#modalTrainName span:last-child { font-size: 1.8rem; font-weight: bold; }
+#modalTrainStatus { margin-bottom: 20px; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+#modalTrainStatus strong { color: var(--sbb-white); }
+.train-specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.spec-item { background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 6px; border-left: 3px solid var(--sbb-red); }
+.spec-label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+.spec-val { font-size: 1rem; font-weight: bold; color: #fff; }
+.status-badge { display: inline-block; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-right: 10px; margin-top: 10px; }
 .ontime-bg { background: #2d5a27; color: #fff; } 
 .delay-bg { background: #9b1c1c; color: #fff; } 
 .track-bg { background: #c2780e; color: #fff; }
