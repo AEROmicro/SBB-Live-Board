@@ -186,17 +186,29 @@ window.showTrainDetails = function(index) {
         <span style="vertical-align: middle; margin-left: 10px;">${train.to}</span>
     `;
 
-    // Extract Extra Info
-    let extraInfo = [];
-    if (train.operator) extraInfo.push(`Betreiber: <strong>${train.operator}</strong>`);
-    
-    let statusHTML = '';
+    // --- NEW STUFF: Extract Stats & Specs Grid ---
+    let statsHTML = '<div class="train-specs-grid">';
+    statsHTML += `<div class="spec-item"><span class="spec-label">Linie</span><span class="spec-val">${train.name || "Zug"}</span></div>`;
+    statsHTML += `<div class="spec-item"><span class="spec-label">Betreiber</span><span class="spec-val">${train.operator || "SBB CFF FFS"}</span></div>`;
+    statsHTML += `<div class="spec-item"><span class="spec-label">Typ</span><span class="spec-val">${train.category || "N/A"}</span></div>`;
+    statsHTML += `<div class="spec-item"><span class="spec-label">Endstation</span><span class="spec-val">${train.to}</span></div>`;
+    statsHTML += '</div>';
+
+    // Status logic (Delays and Track Changes) with new Badge styling
+    let statusTextHTML = '';
     const stop = train.stop || {};
-    if (stop.delay) statusHTML += `<div class="text-red">Verspätung: +${stop.delay} Min.</div>`;
+    if (stop.delay) {
+        statusTextHTML += `<div class="status-badge delay-bg">Verspätung: +${stop.delay} Min.</div>`;
+    } else {
+        statusTextHTML += `<div class="status-badge ontime-bg">Pünktlich</div>`;
+    }
+    
     if (stop.prognosis && stop.prognosis.platform && stop.platform && stop.prognosis.platform !== stop.platform) {
-        statusHTML += `<div class="text-red">Gleisänderung: Neu Gleis ${stop.prognosis.platform} (geplant ${stop.platform})</div>`;
+        statusTextHTML += `<div class="status-badge track-bg">Gleisänderung: Gl. ${stop.prognosis.platform}</div>`;
     }
 
+    // Extract Extra Info (Dauer calculation)
+    let extraInfo = [];
     let routeHTML = '';
     let hasReachedCurrent = false;
     let mapCoords = [];
@@ -209,7 +221,6 @@ window.showTrainDetails = function(index) {
         
         if (isCurrent) {
             hasReachedCurrent = true;
-            // Set the start time for the duration calculation
             startTime = new Date(pass.departure || pass.arrival);
         }
 
@@ -224,7 +235,6 @@ window.showTrainDetails = function(index) {
             
             const timeStr = rawTime ? new Date(rawTime).toLocaleTimeString([], timeOptions) : '--:--';
             
-            // Generate route steps for the horizontal timeline
             routeHTML += `
                 <div class="horiz-step ${isCurrent ? 'current-stop' : ''}">
                     <div class="horiz-time">${timeStr}${pass.delay ? `<br><span class="horiz-delay">+${pass.delay}'</span>` : ''}</div>
@@ -233,7 +243,6 @@ window.showTrainDetails = function(index) {
                     <div class="horiz-plat">${pass.platform ? `Gl. ${pass.platform}` : ''}</div>
                 </div>`;
                 
-            // End of Journey check: if this is the last stop in the passList
             if (i === train.passList.length - 1 && startTime && rawTime) {
                 let durationMins = Math.round((new Date(rawTime) - startTime) / 60000);
                 if (durationMins > 0) extraInfo.push(`Dauer: <strong>${durationMins} Min.</strong>`);
@@ -243,13 +252,11 @@ window.showTrainDetails = function(index) {
 
     document.querySelector('.route-list-wrapper').innerHTML = routeHTML;
     
-    // Combine Extra Info (Operator | Dauer) with the status (Delays/Track Changes)
-    if (extraInfo.length > 0) {
-        statusHTML = `<div style="margin-bottom:10px; color:#ccc;">${extraInfo.join(' | ')}</div>` + statusHTML;
-    }
+    // Prepend the Duration (Dauer) to the status line if it exists
+    let durationLine = extraInfo.length > 0 ? `<div style="margin-bottom:10px; color:#ccc; font-size: 0.9rem;">${extraInfo.join(' | ')}</div>` : '';
     
-    document.getElementById('modalTrainStatus').innerHTML = statusHTML || '<div style="color:#aaa">Pünktlich</div>';
-
+    // Final assembly of the info section
+    document.getElementById('modalTrainStatus').innerHTML = statsHTML + durationLine + statusTextHTML;
 
     document.getElementById('trainDetailsModal').style.display = 'flex';
 };
