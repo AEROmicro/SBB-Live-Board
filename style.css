@@ -94,45 +94,44 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .modal-status { margin-bottom: 15px; font-size: 0.95rem; background: #333; padding: 10px; border-radius: 4px; }
 .text-red { color: #ff5555; font-weight: bold; }
 
-/* FIXED ROUTE WRAPPER AND LINE */
+/* FIXED STAGNANT TIMELINE LINE */
 .route-list-wrapper {
     display: flex; 
     overflow-x: auto; 
-    overflow-y: hidden; /* Strict horizontal lock */
-    padding: 20px 20px 180px 20px; 
+    overflow-y: hidden;
+    padding: 20px 0 180px 0; /* Full width padding */
     position: relative;
     scrollbar-width: thin; 
     scrollbar-color: var(--sbb-red) #333;
     flex-grow: 1;
+    /* This creates the blue line as a permanent background part of the popout */
+    background-image: linear-gradient(var(--sbb-blue), var(--sbb-blue));
+    background-size: 100% 6px;
+    background-repeat: no-repeat;
+    background-position: center 72px;
 }
 .route-list-wrapper::-webkit-scrollbar { height: 8px; }
 .route-list-wrapper::-webkit-scrollbar-thumb { background: var(--sbb-red); border-radius: 4px; }
 
-/* The Blue Connecting Line */
-.route-list-wrapper::before {
-    content: ''; 
-    position: absolute;
-    top: 72px; /* Aligns perfectly behind the dots */
-    left: 0; 
-    right: 0;
-    height: 6px; 
-    background: var(--sbb-blue);
-    z-index: 1;
-}
-
 .horiz-step {
-    display: flex; flex-direction: column; align-items: center; min-width: 120px; position: relative; z-index: 2;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    min-width: 120px; 
+    position: relative; 
+    z-index: 2;
 }
 
 .horiz-time { font-weight: bold; font-size: 1rem; height: 40px; text-align: center; }
 .horiz-delay { font-size: 0.75rem; color: #ff5555; display: block; }
 
-/* The dot on the line (FIXED TO STAY A CIRCLE) */
+/* The dot on the line */
 .horiz-node {
     width: 14px; height: 14px; background: white; border: 3px solid var(--sbb-blue); border-radius: 50%;
     margin-top: 5px; margin-bottom: 15px;
-    flex-shrink: 0; /* CRITICAL: Stops the circle from squishing into an oval */
-    z-index: 3; /* Keeps it above the line */
+    flex-shrink: 0;
+    z-index: 3;
+    position: relative;
 }
 .horiz-step.current-stop .horiz-node {
     background: var(--sbb-red); border-color: var(--sbb-red); box-shadow: 0 0 10px var(--sbb-red); 
@@ -143,7 +142,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .horiz-station {
     position: absolute; 
     top: 75px; 
-    left: 55%; /* Moved slightly right from the center of the node */
+    left: 55%; 
     transform: rotate(45deg); 
     transform-origin: top left;
     white-space: nowrap; 
@@ -155,8 +154,8 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 .horiz-plat {
     position: absolute; 
-    top: 115px; 
-    left: 55%; /* Matching the station text nudge */
+    top: 125px; 
+    left: 55%; 
     transform: rotate(45deg); 
     transform-origin: top left;
     white-space: nowrap; 
@@ -177,31 +176,22 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 /* Custom Settings Close Button (Non-default) */
 .close-btn {
-    /* Critical for a circle: width must equal height */
     width: 32px;
     height: 32px;
-    
-    /* Center the "x" perfectly */
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* The circle shape */
     border-radius: 50%;
-    
-    /* Appearance */
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: var(--sbb-white);
     background: transparent;
     cursor: pointer;
     font-size: 1.2rem;
-    line-height: 1; /* Prevents the "x" from being pushed down */
+    line-height: 1;
     transition: all 0.2s ease;
-    
-    /* Remove default button behavior */
     padding: 0;
     margin-left: 15px;
-    flex-shrink: 0; /* Prevents it from squishing in flex headers */
+    flex-shrink: 0;
 }
 
 .close-btn:hover {
@@ -211,19 +201,18 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     transform: scale(1.05);
 }
 
-
 /* Make the badge larger inside the modal header */
 #modalTrainName .line-badge {
-    font-size: 1.4rem; /* Larger font size */
-    padding: 6px 12px; /* Extra breathing room */
-    min-width: 60px;   /* Ensures a consistent shape */
+    font-size: 1.4rem;
+    padding: 6px 12px;
+    min-width: 60px;
     border-radius: 4px;
-    margin-right: 5px; /* Space between badge and arrow */
+    margin-right: 5px;
 }
 
 /* Adjust the destination text next to the badge */
 #modalTrainName span:last-child {
-    font-size: 1.8rem; /* Makes the "→ Destination" text larger to match */
+    font-size: 1.8rem;
     font-weight: bold;
 }
 
@@ -278,6 +267,6 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     margin-top: 10px;
 }
 
-.ontime-bg { background: #2d5a27; color: #fff; } /* Dark Green */
-.delay-bg { background: #9b1c1c; color: #fff; }  /* Dark Red */
-.track-bg { background: #c2780e; color: #fff; }  /* Amber */
+.ontime-bg { background: #2d5a27; color: #fff; } 
+.delay-bg { background: #9b1c1c; color: #fff; } 
+.track-bg { background: #c2780e; color: #fff; }
