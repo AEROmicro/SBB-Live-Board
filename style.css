@@ -205,23 +205,38 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 /* Custom Settings Close Button (Non-default) */
 .close-btn {
-    background: none;
-    border: 2px solid rgba(255,255,255,0.2);
-    color: var(--sbb-white);
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+    /* Critical for a circle: width must equal height */
+    width: 32px;
+    height: 32px;
+    
+    /* Center the "x" perfectly */
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    /* The circle shape */
+    border-radius: 50%;
+    
+    /* Appearance */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: var(--sbb-white);
+    background: transparent;
+    cursor: pointer;
     font-size: 1.2rem;
-    transition: all 0.2s;
+    line-height: 1; /* Prevents the "x" from being pushed down */
+    transition: all 0.2s ease;
+    
+    /* Remove default button behavior */
+    padding: 0;
+    margin-left: 15px;
+    flex-shrink: 0; /* Prevents it from squishing in flex headers */
 }
 
 .close-btn:hover {
     background: var(--sbb-red);
     border-color: var(--sbb-red);
-    transform: scale(1.1);
+    color: white;
+    transform: scale(1.05);
 }
 
 /* Add a hover effect so it feels like a custom button */
