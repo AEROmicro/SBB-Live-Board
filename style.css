@@ -161,3 +161,23 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     width: 300px;
     text-align: left;
 }
+
+.close-btn {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--sbb-red);
+    line-height: 1;
+    margin-left: 15px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add a hover effect so it feels like a custom button */
+.close-btn:hover {
+    background: rgba(235, 0, 0, 0.1); /* Subtle red tint */
+    color: #ff5555;
+}
