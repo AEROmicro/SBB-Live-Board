@@ -11,45 +11,22 @@ body {
     background-color: var(--sbb-dark-grey);
     color: var(--sbb-white);
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
+    margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
 }
 
 .board {
-    background-color: var(--sbb-blue);
-    width: 100%;
-    max-width: 1100px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 25px;
-    position: relative;
+    background-color: var(--sbb-blue); width: 100%; max-width: 1100px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8); border-radius: 4px; overflow: hidden;
+    margin-bottom: 25px; position: relative;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background: rgba(0,0,0,0.15);
-    border-bottom: 2px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 30px; background: rgba(0,0,0,0.15); border-bottom: 2px solid rgba(255,255,255,0.1);
 }
 
-#map {
-    height: 200px;
-    width: 100%;
-    border-bottom: 2px solid rgba(255,255,255,0.1);
-    background: #1a1a1a; /* Placeholder color before tiles load */
-}
-
-/* Ensure Leaflet controls don't clash with your UI */
-.leaflet-container {
-    font-family: inherit;
-}
+#map { height: 250px; width: 100%; border-bottom: 2px solid rgba(255,255,255,0.1); background: #1a1a1a; }
+.leaflet-container { font-family: inherit; }
 
 .sbb-logo-text { background: var(--sbb-red); padding: 5px 12px; font-weight: 900; font-size: 1rem; margin-right: 15px; }
 .station-container { display: flex; flex-direction: column; }
@@ -57,42 +34,27 @@ body {
 .temp-header { font-size: 1rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
 
 /* --- CLOCK --- */
-.clock-face {
-    width: var(--clock-size);
-    height: var(--clock-size);
-    background-color: var(--sbb-white);
-    border-radius: 50%;
-    position: relative;
-    flex-shrink: 0;
-}
-
+.clock-face { width: var(--clock-size); height: var(--clock-size); background-color: var(--sbb-white); border-radius: 50%; position: relative; flex-shrink: 0; }
 #markers { position: absolute; width: 100%; height: 100%; }
-.marker {
-    position: absolute;
-    left: 50%;
-    background: black;
-    transform-origin: 50% calc(50px - var(--buffer)); 
-}
+.marker { position: absolute; left: 50%; background: black; transform-origin: 50% calc(50px - var(--buffer));  }
 .marker.hour { width: 4px; height: 12px; margin-left: -2px; top: var(--buffer); }
 .marker.min { width: 1.5px; height: 4px; margin-left: -0.75px; top: var(--buffer); }
-
 .hand { position: absolute; left: 50%; top: 50%; background: black; }
 .hour-hand { width: 6px; height: 32px; margin-left: -3px; transform: translateY(-25px); transform-origin: 50% 25px; z-index: 2; }
 .minute-hand { width: 6px; height: 42px; margin-left: -3px; transform: translateY(-37px); transform-origin: 50% 37px; z-index: 3; }
-.second-hand { 
-    width: 1.5px; height: 38px; margin-left: -0.75px; 
-    background: var(--sbb-red); 
-    transform: translateY(-28px); transform-origin: 50% 28px; z-index: 4; 
-}
-.second-hand::after {
-    content: ''; position: absolute; top: 0; left: 50%; width: 10px; height: 10px;
-    background: var(--sbb-red); border-radius: 50%; transform: translate(-50%, -5px);
-}
+.second-hand { width: 1.5px; height: 38px; margin-left: -0.75px; background: var(--sbb-red); transform: translateY(-28px); transform-origin: 50% 28px; z-index: 4; }
+.second-hand::after { content: ''; position: absolute; top: 0; left: 50%; width: 10px; height: 10px; background: var(--sbb-red); border-radius: 50%; transform: translate(-50%, -5px); }
 
 /* --- TABLE --- */
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 th { text-align: left; padding: 12px 30px; font-size: 0.8rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
 td { padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; overflow: hidden; vertical-align: middle; }
+
+#boardBody tr { cursor: pointer; transition: background 0.2s; }
+#boardBody tr:hover { background: rgba(255,255,255,0.1); }
+
+a:link, a:visited { color: #5f5d59; }
+a:hover, a:active { color: #eb0000; }
 
 .time-cell { font-size: 1.6rem; font-weight: bold; width: 140px; }
 .line-badge { display: inline-block; padding: 2px 6px; font-weight: 900; font-size: 1rem; margin-right: 12px; border-radius: 2px; min-width: 40px; text-align: center; }
@@ -104,70 +66,47 @@ td { padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); white-
 .via-text { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
 .track-box { background: white; color: var(--sbb-blue); padding: 4px 12px; font-weight: 900; font-size: 1.4rem; border-radius: 2px; }
 .delay { color: #ff5555; margin-left: 8px; font-size: 1rem; }
-
-.last-updated {
-    padding: 10px 30px;
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.4);
-    text-align: right;
-    background: rgba(0,0,0,0.1);
-}
-
-a:link, a:visited { color: #5f5d59; }
-a:hover, a:active { color: #eb0000; }
+.last-updated { padding: 10px 30px; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: right; background: rgba(0,0,0,0.1); }
 
 /* --- SETTINGS POPUP --- */
-#settingsOverlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;
-}
-.settings-content {
-    background: #222; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; border: 1px solid #444;
-}
-.settings-content h2 { margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
+#settingsOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+.settings-content { background: #222; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; border: 1px solid #444; }
 .setting-row { margin: 20px 0; display: flex; flex-direction: column; gap: 10px; }
 .fav-list { background: #333; border-radius: 4px; padding: 5px; max-height: 150px; overflow-y: auto; }
-.fav-item { 
-    padding: 8px; border-bottom: 1px solid #444; 
-    display: flex; justify-content: space-between; align-items: center;
-    transition: background 0.2s;
-}
+.fav-item { padding: 8px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
 .fav-item:hover { background: rgba(235, 0, 0, 0.1); }
-.fav-item span { cursor: pointer; flex-grow: 1; }
 .fav-del { color: var(--sbb-red); font-weight: bold; padding: 0 10px; cursor: pointer; }
 
-.close-settings { 
-    background: #eee; color: black; border: none; padding: 10px; width: 100%; 
-    font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s;
-}
-.close-settings:hover { background: var(--sbb-red); color: white; }
-
 /* --- SEARCH & BUTTONS --- */
-.search-container {
-    position: relative;
-    margin-top: auto; 
-    width: 100%;
-    max-width: 600px;
-    padding-bottom: 20px;
-}
+.search-container { position: relative; margin-top: auto; width: 100%; max-width: 600px; padding-bottom: 20px; }
 .search-box { display: flex; gap: 10px; align-items: center; }
 input { flex-grow: 1; padding: 12px; font-size: 1.1rem; border: none; border-radius: 2px; }
-
-button.update-btn, button.util-btn { 
-    padding: 12px 20px; background: #eee; color: black; border: none; 
-    font-weight: bold; cursor: pointer; border-radius: 2px; transition: 0.2s;
-}
-button.update-btn:hover, button.util-btn:hover {
-    background: var(--sbb-red);
-    color: white;
-}
-
-#autocomplete-list { 
-    position: absolute; bottom: 100%; left: 0; right: 0; 
-    background: white; color: black; z-index: 1000; 
-    margin-bottom: 5px; border-radius: 2px; overflow: hidden;
-}
+button.update-btn, button.util-btn { padding: 12px 20px; background: #eee; color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 2px; transition: 0.2s; }
+button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); color: white; }
+#autocomplete-list { position: absolute; bottom: 100%; left: 0; right: 0; background: white; color: black; z-index: 1000; margin-bottom: 5px; border-radius: 2px; overflow: hidden; }
 .autocomplete-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; }
 .autocomplete-item:hover { background-color: var(--sbb-red); color: white; }
-
 .copyright { text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 20px; line-height: 1.4; }
+
+/* --- TRAIN DETAILS MODAL WITH TIMELINE --- */
+.overlay-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; }
+.modal-content-details { background: #222; color: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 8px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
+.modal-header h2 { margin: 0; color: var(--sbb-white); font-size: 1.5rem; }
+.close-btn { font-size: 2rem; cursor: pointer; color: var(--sbb-red); line-height: 1; margin-left: 15px; }
+.modal-status { margin-bottom: 15px; font-size: 0.95rem; background: #333; padding: 10px; border-radius: 4px; }
+.text-red { color: #ff5555; font-weight: bold; }
+
+/* The Timeline Visuals */
+.route-list { position: relative; padding-left: 20px; margin-top: 15px; border-left: 4px solid var(--sbb-blue); margin-left: 10px; }
+.route-step { position: relative; display: flex; align-items: center; padding: 15px 10px; border-bottom: 1px solid #333; }
+.route-step::before {
+    content: ''; position: absolute; left: -28px; top: 50%; transform: translateY(-50%);
+    width: 12px; height: 12px; background: white; border: 3px solid var(--sbb-blue); border-radius: 50%; z-index: 2;
+}
+.current-station-highlight { background: rgba(255,255,255,0.05); border-radius: 4px; }
+.current-station-highlight::before { border-color: var(--sbb-red); background: var(--sbb-red); width: 16px; height: 16px; left: -30px; box-shadow: 0 0 10px var(--sbb-red); }
+
+.route-time { width: 70px; font-weight: bold; font-size: 1.1rem; }
+.route-station { flex: 1; font-size: 1.1rem; font-weight: bold; }
+.route-plat { width: 60px; text-align: right; color: #aaa; font-weight: bold; }
