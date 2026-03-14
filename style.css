@@ -99,12 +99,13 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     display: flex; 
     overflow-x: auto; 
     overflow-y: hidden;
-    /* Removed large side padding to allow line to touch edges */
     padding: 20px 0 180px 0; 
     position: relative;
     scrollbar-width: thin; 
     scrollbar-color: var(--sbb-red) #333;
     flex-grow: 1;
+    /* This ensures the line doesn't bleed out of the modal area */
+    mask-image: linear-gradient(to right, black 0%, black 100%);
 }
 
 .horiz-step {
@@ -116,7 +117,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     z-index: 2;
 }
 
-/* The Stagnant Line */
+/* The Blue Connecting Line */
 .horiz-step::before {
     content: '';
     position: absolute;
@@ -128,22 +129,16 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     z-index: 1;
 }
 
-/* SMART EDGE EXTENSIONS */
-/* This makes the line fill the space to the modal edge, but no further */
+/* FIXING THE EDGE EXTENSIONS */
+/* We use a huge negative margin + padding combo to touch the walls without breaking scroll */
 .horiz-step:first-child::before {
-    left: -500px; /* Large enough to hit the modal wall */
-    clip-path: inset(0 0 0 500px); /* Keeps it from actually being 500px long visually beyond the modal */
-    /* Alternative simpler way to ensure it hits the edge: */
-    left: -50vw; 
+    left: -1000px; 
+    padding-left: 1000px;
 }
 
 .horiz-step:last-child::before {
-    right: -50vw;
-}
-
-/* We use the wrapper to chop off any part of the line that goes outside the modal */
-.route-list-wrapper {
-    overflow-x: auto;
+    right: -1000px;
+    padding-right: 1000px;
 }
 
 .horiz-time { font-weight: bold; font-size: 1rem; height: 40px; text-align: center; }
@@ -166,27 +161,27 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .horiz-station {
     position: absolute; 
     top: 75px; 
-    left: 55%; 
+    left: 50%; 
     transform: rotate(45deg); 
     transform-origin: top left;
     white-space: nowrap; 
     font-size: 1.05rem; 
     font-weight: bold; 
-    width: 300px;
+    width: 250px;
     text-align: left;
 }
 
 .horiz-plat {
     position: absolute; 
     top: 115px; 
-    left: 55%; 
+    left: 50%; 
     transform: rotate(45deg); 
     transform-origin: top left;
     white-space: nowrap; 
     font-size: 0.85rem; 
     color: #aaa; 
     font-weight: bold;
-    width: 300px;
+    width: 250px;
     text-align: left;
 }
 
