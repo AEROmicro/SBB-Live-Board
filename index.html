@@ -97,6 +97,14 @@
             </div>
 
             <div class="setting-row">
+                <label>Alerts (Favorites):</label>
+                <div style="display:flex; gap:10px;">
+                    <button class="util-btn" id="notifBtnOn" style="flex:1" onclick="setNotifications(true)">On</button>
+                    <button class="util-btn" id="notifBtnOff" style="flex:1" onclick="setNotifications(false)">Off</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
                 <label>Favorites:</label>
                 <div class="fav-list" id="favListContainer"></div>
             </div>
@@ -112,7 +120,7 @@
                 <span class="close-btn" onclick="document.getElementById('trainDetailsModal').style.display='none'">×</span>
             </div>
             <div id="modalTrainStatus" class="modal-status"></div>
-            <div id="modalRouteList" class="route-list"></div>
+            <div id="modalRouteList" class="route-list-wrapper"></div>
         </div>
     </div>
 
