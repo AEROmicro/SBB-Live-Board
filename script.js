@@ -152,7 +152,8 @@ async function fetchBoard() {
             let depTime = new Date(train.stop.departure);
             let timeStr = depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: use12h, timeZone: timeZone !== 'local' ? 'Europe/Zurich' : undefined });
             
-            const badge = (train.category + (train.number !== null ? train.number : "")) || "Zug";            let dest = train.to || badge;
+            const badge = (train.category + (train.number !== null ? train.number : "")) || "Zug";
+            let dest = train.to || badge;
             const viaList = (train.passList || []).slice(1, 4).map(p => p.station.name).filter(n => n && n !== dest);
             const lineClass = train.category === 'IR' ? 'line-IR' : (train.category === 'IC' ? 'line-IC' : 'line-S');
 
@@ -170,25 +171,31 @@ async function fetchBoard() {
     } catch (e) { document.getElementById('updateTime').innerText = "Verbindungsfehler..."; }
 }
 
-// HORIZONTAL SBB TIMELINE MODAL
 window.showTrainDetails = function(index) {
     const train = globalBoardData[index];
     if (!train) return;
 
     const currentViewedStation = document.getElementById('displayStation').innerText.toLowerCase();
-    const badge = (train.category + " " + train.number).trim();
-    document.getElementById('modalTrainName').innerText = `${badge} \u2192 ${train.to}`;
+    
+    // 1. Create the Badge (Fixing the 'null' issue and adding SBB styling)
+    const badgeText = (train.category + (train.number !== null ? train.number : "")).trim();
+    const lineClass = train.category === 'IR' ? 'line-IR' : (train.category === 'IC' ? 'line-IC' : 'line-S');
+    
+    // 2. Update Header with the Badge and Larger Text (Arrow Removed)
+    document.getElementById('modalTrainName').innerHTML = `
+        <span class="line-badge ${lineClass}">${badgeText}</span> 
+        <span style="vertical-align: middle; margin-left: 10px;">${train.to}</span>
+    `;
 
     // Extract Extra Info
     let extraInfo = [];
     if (train.operator) extraInfo.push(`Betreiber: <strong>${train.operator}</strong>`);
     
-    // Status/Delays logic
     let statusHTML = '';
     const stop = train.stop || {};
-    if (stop.delay) statusHTML += `<div class="text-red">⚠️ Verspätung: +${stop.delay} Min.</div>`;
+    if (stop.delay) statusHTML += `<div class="text-red">Verspätung: +${stop.delay} Min.</div>`;
     if (stop.prognosis && stop.prognosis.platform && stop.platform && stop.prognosis.platform !== stop.platform) {
-        statusHTML += `<div class="text-red">⚠️ Gleisänderung: Neu Gleis ${stop.prognosis.platform} (geplant ${stop.platform})</div>`;
+        statusHTML += `<div class="text-red">Gleisänderung: Neu Gleis ${stop.prognosis.platform} (geplant ${stop.platform})</div>`;
     }
 
     let routeHTML = '';
@@ -196,14 +203,15 @@ window.showTrainDetails = function(index) {
     let mapCoords = [];
     let startTime = null;
 
-    (train.passList || []).forEach(pass => {
+    (train.passList || []).forEach((pass, i) => {
         if (!pass.station || !pass.station.name) return;
         
-        let isCurrent = false;
-        if (pass.station.name.toLowerCase().includes(currentViewedStation) || currentViewedStation.includes(pass.station.name.toLowerCase())) {
+        let isCurrent = pass.station.name.toLowerCase().includes(currentViewedStation) || currentViewedStation.includes(pass.station.name.toLowerCase());
+        
+        if (isCurrent) {
             hasReachedCurrent = true;
-            isCurrent = true;
-            startTime = new Date(pass.departure || pass.arrival); 
+            // Set the start time for the duration calculation
+            startTime = new Date(pass.departure || pass.arrival);
         }
 
         if (hasReachedCurrent) {
@@ -214,33 +222,40 @@ window.showTrainDetails = function(index) {
             const rawTime = pass.departure || pass.arrival;
             const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: use12h };
             if (timeZone !== 'local') timeOptions.timeZone = 'Europe/Zurich';
+            
             const timeStr = rawTime ? new Date(rawTime).toLocaleTimeString([], timeOptions) : '--:--';
             
-            // Build the horizontal slice
+            // Generate route steps for the horizontal timeline
             routeHTML += `
                 <div class="horiz-step ${isCurrent ? 'current-stop' : ''}">
-                    <div class="horiz-time">${timeStr} <br><span class="horiz-delay">${pass.delay ? `+${pass.delay}'` : ''}</span></div>
+                    <div class="horiz-time">${timeStr}${pass.delay ? `<br><span class="horiz-delay">+${pass.delay}'</span>` : ''}</div>
                     <div class="horiz-node"></div>
                     <div class="horiz-station">${pass.station.name}</div>
                     <div class="horiz-plat">${pass.platform ? `Gl. ${pass.platform}` : ''}</div>
                 </div>`;
                 
-            if (pass === train.passList[train.passList.length - 1] && startTime && rawTime) {
-                let endTime = new Date(rawTime);
-                let durationMins = Math.round((endTime - startTime) / 60000);
+            // End of Journey check: if this is the last stop in the passList
+            if (i === train.passList.length - 1 && startTime && rawTime) {
+                let durationMins = Math.round((new Date(rawTime) - startTime) / 60000);
                 if (durationMins > 0) extraInfo.push(`Dauer: <strong>${durationMins} Min.</strong>`);
             }
         }
     });
 
-    if (extraInfo.length > 0) statusHTML = `<div style="margin-bottom:10px; color:#ccc;">${extraInfo.join(' | ')}</div>` + statusHTML;
-    document.getElementById('modalTrainStatus').innerHTML = statusHTML || '<div style="color:#aaa">Pünktlich unterwegs</div>';
-    document.getElementById('modalRouteList').innerHTML = routeHTML || '<div style="padding: 10px; color: #aaa; font-weight: bold; font-size: 1.2rem;">Fahrt endet hier. (Endstation)</div>';    
-    // Draw Route on Map Behind the Modal
+    document.querySelector('.route-list-wrapper').innerHTML = routeHTML;
+    
+    // Combine Extra Info (Operator | Dauer) with the status (Delays/Track Changes)
+    if (extraInfo.length > 0) {
+        statusHTML = `<div style="margin-bottom:10px; color:#ccc;">${extraInfo.join(' | ')}</div>` + statusHTML;
+    }
+    
+    document.getElementById('modalTrainStatus').innerHTML = statusHTML || '<div style="color:#aaa">Pünktlich</div>';
+
+    // Map logic
     if (routePolyline) map.removeLayer(routePolyline);
     if (mapCoords.length > 1) {
         routePolyline = L.polyline(mapCoords, {color: '#eb0000', weight: 4, opacity: 0.8}).addTo(map);
-        map.fitBounds(routePolyline.getBounds(), {padding: [20, 20]}); 
+        map.fitBounds(routePolyline.getBounds(), {padding: [20, 20]});
     }
 
     document.getElementById('trainDetailsModal').style.display = 'flex';
@@ -262,7 +277,7 @@ async function checkFavoriteAlerts() {
                 const stop = train.stop || {};
                 const trainId = train.name + train.to + stop.departure;
 
-                if (notifiedTrains.has(trainId)) return; // Don't spam the same train
+                if (notifiedTrains.has(trainId)) return; 
 
                 let alertMsg = null;
                 if (stop.delay > 0) {
@@ -275,7 +290,7 @@ async function checkFavoriteAlerts() {
                 if (alertMsg) {
                     new Notification(`SBB Alarm: ${station}`, { body: alertMsg, icon: 'image.png' });
                     notifiedTrains.add(trainId);
-                    if(notifiedTrains.size > 100) notifiedTrains.clear(); // clear memory safely
+                    if(notifiedTrains.size > 100) notifiedTrains.clear(); 
                 }
             });
         } catch(e) {}
@@ -289,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 setInterval(fetchBoard, 30000); 
 setInterval(fetchWeather, 600000);
-setInterval(checkFavoriteAlerts, 120000); // Check favorites every 2 minutes
+setInterval(checkFavoriteAlerts, 120000); 
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(() => console.log("Service Worker Registered"));
