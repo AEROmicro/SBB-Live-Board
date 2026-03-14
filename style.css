@@ -258,3 +258,47 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 #modalTrainStatus strong {
     color: var(--sbb-white);
 }
+
+/* Stats Grid Layout */
+.train-specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.spec-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 3px solid var(--sbb-red);
+}
+
+.spec-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.spec-val {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.ontime-bg { background: #2d5a27; color: #fff; } /* Dark Green */
+.delay-bg { background: #9b1c1c; color: #fff; }  /* Dark Red */
+.track-bg { background: #c2780e; color: #fff; }  /* Amber */
