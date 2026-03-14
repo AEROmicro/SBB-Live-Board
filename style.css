@@ -176,8 +176,89 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     justify-content: center;
 }
 
+/* Ensure modal header allows the badge and text to sit side-by-side */
+#modalTrainName {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0;
+}
+
+/* Lock vertical scrolling in the details menu */
+.modal-content-details {
+    max-height: 85vh;
+    overflow-y: hidden; /* No vertical scroll */
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure the timeline area scrolls horizontally only */
+.route-list-wrapper {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden; /* Strict horizontal lock */
+    padding: 20px 20px 180px 20px;
+    position: relative;
+    flex-grow: 1;
+}
+
+/* Custom Settings Close Button (Non-default) */
+.close-btn {
+    background: none;
+    border: 2px solid rgba(255,255,255,0.2);
+    color: var(--sbb-white);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: var(--sbb-red);
+    border-color: var(--sbb-red);
+    transform: scale(1.1);
+}
+
 /* Add a hover effect so it feels like a custom button */
 .close-btn:hover {
     background: rgba(235, 0, 0, 0.1); /* Subtle red tint */
     color: #ff5555;
+}
+
+/* Make the badge larger inside the modal header */
+#modalTrainName .line-badge {
+    font-size: 1.4rem; /* Larger font size */
+    padding: 6px 12px; /* Extra breathing room */
+    min-width: 60px;   /* Ensures a consistent shape */
+    border-radius: 4px;
+    margin-right: 5px; /* Space between badge and arrow */
+}
+
+/* Adjust the destination text next to the badge */
+#modalTrainName span:last-child {
+    font-size: 1.8rem; /* Makes the "→ Destination" text larger to match */
+    font-weight: bold;
+}
+
+/* Modal Content Adjustment */
+.modal-content-details {
+    width: 95%;
+    max-width: 1000px; /* Slightly wider modal for better layout */
+    padding: 30px;
+}
+
+#modalTrainStatus {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+#modalTrainStatus strong {
+    color: var(--sbb-white);
 }
