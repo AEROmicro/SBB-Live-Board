@@ -143,7 +143,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     
     /* Positioned perfectly onto the 60px line */
     position: relative;
-    top: 35px; 
+    top: 15px; 
     
     z-index: 3;
     flex-shrink: 0; 
@@ -159,7 +159,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     height: 20px; 
     
     /* Adjusted mathematically to center exactly with the white nodes */
-    top: 33px; 
+    top: 13px; 
     flex-shrink: 0;
 }
 
