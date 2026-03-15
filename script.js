@@ -9,9 +9,43 @@ let currentCoords = { lat: 47.378177, lon: 8.540192 };
 let map, marker, routePolyline;
 let notifiedTrains = new Set(); // Prevent spamming notifications
 
+// --- NEW: TRANSLATION ENGINE ---
+const translations = {
+    de: { departure: "ABFAHRT", destination: "LINIE / ZIEL", track: "GLEIS", language: "Sprache", settings: "Einstellungen", favs: "Favoriten", noFavs: "Keine Favoriten", noDeps: "Keine Abfahrten", searchMsg: "Zuletzt aktualisiert", inMin: "in", minText: "Min", maxEntries: "Anzahl Einträge:", tempUnit: "Temperatureinheit:", timeZoneLabel: "Zeitzone:", alerts: "Alarme (Favoriten):", favoritesLabel: "Favoriten:", on: "An", off: "Aus", local: "Lokal", swiss: "Schweiz" },
+    en: { departure: "DEPARTURE", destination: "LINE / DESTINATION", track: "TRACK", language: "Language", settings: "Settings", favs: "Favorites", noFavs: "No favorites", noDeps: "No departures", searchMsg: "Last updated", inMin: "in", minText: "min", maxEntries: "Max Entries:", tempUnit: "Temperature Unit:", timeZoneLabel: "Timezone:", alerts: "Alerts (Favorites):", favoritesLabel: "Favorites:", on: "On", off: "Off", local: "Local", swiss: "Swiss" },
+    fr: { departure: "DÉPART", destination: "VOIE / DEST", track: "QUAI", language: "Langue", settings: "Paramètres", favs: "Favoris", noFavs: "Aucun favori", noDeps: "Aucun départ", searchMsg: "Dernière mise à jour", inMin: "dans", minText: "min", maxEntries: "Nombre d'entrées:", tempUnit: "Unité de température:", timeZoneLabel: "Fuseau horaire:", alerts: "Alertes (Favoris):", favoritesLabel: "Favoris:", on: "On", off: "Off", local: "Locale", swiss: "Suisse" },
+    it: { departure: "PARTENZA", destination: "LINEA / DEST", track: "BINARIO", language: "Lingua", settings: "Impostazioni", favs: "Preferiti", noFavs: "Nessun preferito", noDeps: "Nessuna partenza", searchMsg: "Ultimo aggiornamento", inMin: "tra", minText: "min", maxEntries: "Numero di voci:", tempUnit: "Unità di temperatura:", timeZoneLabel: "Fuso orario:", alerts: "Avvisi (Preferiti):", favoritesLabel: "Preferiti:", on: "On", off: "Off", local: "Locale", swiss: "Svizzera" },
+    rm: { departure: "PARTENZA", destination: "LINGIA / DEST", track: "BINARI", language: "Lingua", settings: "Configuraziun", favs: "Favurits", noFavs: "Nagin favurits", noDeps: "Naginas partenzas", searchMsg: "Actualisà il", inMin: "en", minText: "min", maxEntries: "Dumber d'entradas:", tempUnit: "Unitad da temperatura:", timeZoneLabel: "Zona d'urari:", alerts: "Alarms (Favurits):", favoritesLabel: "Favurits:", on: "En", off: "Davent", local: "Local", swiss: "Svizra" }
+};
+
+let currentLang = localStorage.getItem('appLang') || 'de';
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('appLang', lang);
+    applyTranslations();
+    fetchBoard(); // Re-fetch to update dynamic train text
+}
+
+function applyTranslations() {
+    document.getElementById('langSelect').value = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) {
+            el.innerText = translations[currentLang][key];
+        }
+    });
+}
+
 function initMap() {
     map = L.map('map', { zoomControl: false, attributionControl: false }).setView([currentCoords.lat, currentCoords.lon], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // NEW: CartoDB Dark Matter Map (Fixes the OSM block and looks way better)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
     marker = L.marker([currentCoords.lat, currentCoords.lon]).addTo(map);
 }
 
@@ -147,10 +181,20 @@ async function fetchBoard() {
         }
 
         let newRows = '';
+        let nowMs = new Date().getTime(); // Used for countdown
+
         data.stationboard.forEach((train, index) => {
             if (!train.stop || !train.stop.departure) return;
             let depTime = new Date(train.stop.departure);
             let timeStr = depTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: use12h, timeZone: timeZone !== 'local' ? 'Europe/Zurich' : undefined });
+
+            // NEW: Calculate minutes until departure
+            let diffMin = Math.round((depTime.getTime() - nowMs) / 60000);
+            let countdownHtml = '';
+            // Only show countdown if train is departing in the next 60 mins
+            if (diffMin >= 0 && diffMin <= 60) {
+                countdownHtml = `<div style="font-size: 0.85rem; color: #aaa; font-weight: normal; margin-top: 2px;">${translations[currentLang].inMin} ${diffMin} ${translations[currentLang].minText}</div>`;
+            }
 
             const badge = (train.category + (train.number !== null ? train.number : "")) || "Zug";
             let dest = train.to || badge;
@@ -159,11 +203,16 @@ async function fetchBoard() {
 
             newRows += `
             <tr onclick="window.showTrainDetails(${index})">
-            <td class="time-cell">${timeStr}${train.stop.delay ? `<span class="delay">+${train.stop.delay}′</span>` : ''}</td>
+            <td class="time-cell">
+            ${timeStr}${train.stop.delay ? `<span class="delay">+${train.stop.delay}′</span>` : ''}
+            ${countdownHtml}
+            </td>
             <td class="dest-cell"><span class="line-badge ${lineClass}">${badge}</span>${dest}<div class="via-text">${viaList.length > 0 ? 'via ' + viaList.join(' - ') : ''}</div></td>
             <td style="text-align: right;"><span class="track-box">${train.stop.platform || ''}</span></td>
             </tr>`;
         });
+        tbody.innerHTML = newRows;
+        document.getElementById('updateTime').innerText = `${translations[currentLang].searchMsg}: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
         tbody.innerHTML = newRows;
         document.getElementById('updateTime').innerText = `Zuletzt aktualisiert: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}`;
 
