@@ -94,85 +94,100 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .modal-status { margin-bottom: 15px; font-size: 0.95rem; background: #333; padding: 10px; border-radius: 4px; }
 .text-red { color: #ff5555; font-weight: bold; }
 
-/* FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER */
+/* --- FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER --- */
 .route-list-wrapper {
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 20px 0 180px 0;
+    padding: 0 0 160px 0; /* Removed top padding to lock the math in place */
     position: relative;
     scrollbar-width: thin;
     scrollbar-color: var(--sbb-red) #333;
-    flex-grow: 1;
-    mask-image: linear-gradient(to right, black 0%, black 100%);
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
 
-    /* --- ADJUST THE LINE POSITION HERE --- */
+    /* EXACT MATH: Line is exactly 6px thick. Center is at 60px. No decimals. */
     background: linear-gradient(to bottom,
-                                transparent 52px,
-                                var(--sbb-blue) 52.5px, /* Added a 0.5px buffer for mobile scaling */
-                                var(--sbb-blue) 57.5px,
-                                transparent 58px
+                                transparent 57px,
+                                var(--sbb-blue) 57px,
+                                var(--sbb-blue) 63px,
+                                transparent 63px
     );
-    background-repeat: repeat-x;
+    /* This ensures the line doesn't visually break when scrolling on iOS */
+    background-attachment: local;
 }
 
 .horiz-step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 140px;
-    flex-shrink: 0; /* CRITICAL for mobile: stops the stations from overlapping */
+    width: 140px; /* Hard width fixes the mobile overlapping bug */
+    flex-shrink: 0;
     position: relative;
     z-index: 2;
 }
 
-/* The Blue Connecting Line */
-.horiz-step::before {
-    display: none !important; /* This removes the "second" line */
-    content: '';
-    position: absolute;
-    content: '';
-    position: absolute;
-    top: 52px;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: var(--sbb-blue);
-    z-index: 1;
-}
-
-/* FIXING THE EDGE EXTENSIONS */
-/* We use a huge negative margin + padding combo to touch the walls without breaking scroll */
-.horiz-step:first-child::before {
-    left: -1000px;
-    padding-left: 1000px;
-}
-
+/* Strip out all the old ::before elements to prevent ghost lines */
+.horiz-step::before,
+.horiz-step:first-child::before,
 .horiz-step:last-child::before {
-    right: -1000px;
-    padding-right: 1000px;
+    display: none !important;
 }
 
-.horiz-time { font-weight: bold; font-size: 1rem; height: 40px; text-align: center; }
-.horiz-delay { font-size: 0.75rem; color: #ff5555; display: block; }
+.horiz-time {
+    font-weight: bold;
+    font-size: 1rem;
+    height: 40px; /* Fixed height is the anchor for the whole layout */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Pushes time to the bottom of the 40px space */
+    padding-bottom: 5px;
+    text-align: center;
+    width: 100%;
+}
+
+.horiz-delay {
+    font-size: 0.75rem;
+    color: #ff5555;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
 
 /* The dot on the line */
 .horiz-node {
-    width: 14px; height: 14px; background: white; border: 3px solid var(--sbb-blue); border-radius: 50%;
-    margin-top: 5px; margin-bottom: 15px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border: 4px solid var(--sbb-blue);
+    border-radius: 50%;
+    box-sizing: border-box; /* Crucial: stops borders from altering the height */
+
+    /* 40px (Time) + 12px (Margin) = 52px Top.
+     *       Center of 16px node is 8px. 52 + 8 = 60px (Locks perfectly onto line) */
+    margin-top: 12px;
+
     flex-shrink: 0;
     z-index: 3;
     position: relative;
 }
+
 .horiz-step.current-stop .horiz-node {
-    background: var(--sbb-red); border-color: var(--sbb-red); box-shadow: 0 0 10px var(--sbb-red);
-    width: 18px; height: 18px; margin-top: 3px; margin-bottom: 13px;
-    flex-shrink: 0;
+    background: var(--sbb-red);
+    border-color: var(--sbb-red);
+    box-shadow: 0 0 10px var(--sbb-red);
+    width: 22px;
+    height: 22px;
+
+    /* 40px (Time) + 9px (Margin) = 49px Top.
+     *       Center of 22px node is 11px. 49 + 11 = 60px (Locks perfectly onto line) */
+    margin-top: 9px;
 }
 
 .horiz-station {
     position: absolute;
-    top: 55px;
+    top: 85px; /* Safely pushed down below the node */
     left: 50%;
     transform: rotate(45deg);
     transform-origin: top left;
@@ -185,7 +200,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 .horiz-plat {
     position: absolute;
-    top: 115px;
+    top: 110px; /* Safely pushed down below the station */
     left: 50%;
     transform: rotate(45deg);
     transform-origin: top left;
