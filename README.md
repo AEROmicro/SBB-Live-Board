@@ -23,7 +23,16 @@ A high-fidelity, real-time Swiss Railway (SBB) departure board. This web applica
 * **Personalization:** * Save favorite stations for quick access.
     * Toggle between 12h/24h time formats and Celsius/Fahrenheit.
     * Customizable "Max Entries" display.
-
+    * 
+## Project Organization
+* **[index.html](index.html)**
+* **[style.css](style.css)**
+* **[script.js](script.js)**
+* **[manifest.json](manifest.json)**
+* **[sw.js](sw.js)**
+* **[image.png](image.png)**
+* **[README.md](README.md)**
+* **[LICENSE](LICENSE)**
 ## Installation & Usage
 * **You do NOT need to install to run; you can run it thru the offical website or download it if you desire.**
 
@@ -46,6 +55,7 @@ A high-fidelity, real-time Swiss Railway (SBB) departure board. This web applica
 * **APIs:**
     * [Transport OpenData CH](https://transport.opendata.ch/): Real-time railway data.
     * [Open-Meteo](https://open-meteo.com/): Current weather data based on station coordinates.
+* **[Swiss Federal Railways Clock](https://github.com/AEROmicro/Swiss-Railways-Official-Clock)** developed by ÆROxol.
 
 ## License (The fun legal stuff)
 
