@@ -94,28 +94,26 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .modal-status { margin-bottom: 15px; font-size: 0.95rem; background: #333; padding: 10px; border-radius: 4px; }
 .text-red { color: #ff5555; font-weight: bold; }
 
-/* --- FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER --- */
+/* FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER */
 .route-list-wrapper {
-    display: flex; 
-    overflow-x: auto; 
+    display: flex;
+    overflow-x: auto;
     overflow-y: hidden;
-    padding: 20px 0 180px 0; 
+    padding: 20px 0 180px 0;
     position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sbb-red) #333;
     flex-grow: 1;
-    -webkit-overflow-scrolling: touch; 
-    background: transparent; /* Cleaned out the old gradient */
-}
+    mask-image: linear-gradient(to right, black 0%, black 100%);
 
-/* The NEW Absolute Blue Line */
-.route-list-wrapper::before {
-    content: "";
-    position: absolute;
-    top: 60px; /* Base position for the line */
-    left: 0;
-    right: 0;
-    height: 6px;
-    background-color: var(--sbb-blue);
-    z-index: 1;
+    /* --- ADJUST THE LINE POSITION HERE --- */
+    background: linear-gradient(to bottom,
+                                transparent 52px,
+                                var(--sbb-blue) 52.5px, /* Added a 0.5px buffer for mobile scaling */
+                                var(--sbb-blue) 57.5px,
+                                transparent 58px
+    );
+    background-repeat: repeat-x;
 }
 
 .horiz-step {
@@ -123,49 +121,58 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     flex-direction: column;
     align-items: center;
     min-width: 140px;
-    flex-shrink: 0; 
+    flex-shrink: 0; /* CRITICAL for mobile: stops the stations from overlapping */
     position: relative;
     z-index: 2;
 }
 
-/* Note: Old .horiz-step::before edge extensions were removed because the new absolute line spans 100% of the wrapper naturally without breaking mobile scrolling. */
+/* The Blue Connecting Line */
+.horiz-step::before {
+    display: none !important; /* This removes the "second" line */
+    content: '';
+    position: absolute;
+    content: '';
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--sbb-blue);
+    z-index: 1;
+}
+
+/* FIXING THE EDGE EXTENSIONS */
+/* We use a huge negative margin + padding combo to touch the walls without breaking scroll */
+.horiz-step:first-child::before {
+    left: -1000px;
+    padding-left: 1000px;
+}
+
+.horiz-step:last-child::before {
+    right: -1000px;
+    padding-right: 1000px;
+}
 
 .horiz-time { font-weight: bold; font-size: 1rem; height: 40px; text-align: center; }
 .horiz-delay { font-size: 0.75rem; color: #ff5555; display: block; }
 
 /* The dot on the line */
 .horiz-node {
-    width: 16px; 
-    height: 16px; 
-    background: white; 
-    border: 3px solid var(--sbb-blue); 
-    border-radius: 50%;
-    
-    /* Positioned perfectly onto the 60px line */
-    position: relative;
-    top: 15px; 
-    
+    width: 14px; height: 14px; background: white; border: 3px solid var(--sbb-blue); border-radius: 50%;
+    margin-top: 5px; margin-bottom: 15px;
+    flex-shrink: 0;
     z-index: 3;
-    flex-shrink: 0; 
-    box-sizing: border-box;
+    position: relative;
 }
-
-/* Red Current Node */
 .horiz-step.current-stop .horiz-node {
-    background: var(--sbb-red); 
-    border-color: var(--sbb-red); 
-    box-shadow: 0 0 10px var(--sbb-red);
-    width: 20px; 
-    height: 20px; 
-    
-    /* Adjusted mathematically to center exactly with the white nodes */
-    top: 13px; 
+    background: var(--sbb-red); border-color: var(--sbb-red); box-shadow: 0 0 10px var(--sbb-red);
+    width: 18px; height: 18px; margin-top: 3px; margin-bottom: 13px;
     flex-shrink: 0;
 }
 
 .horiz-station {
     position: absolute;
-    top: 75px; /* Sits nicely below the nodes */
+    top: 55px;
     left: 50%;
     transform: rotate(45deg);
     transform-origin: top left;
@@ -178,7 +185,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 .horiz-plat {
     position: absolute;
-    top: 115px; /* Matches the station offset perfectly */
+    top: 115px;
     left: 50%;
     transform: rotate(45deg);
     transform-origin: top left;
