@@ -4,7 +4,7 @@
     --sbb-white: #ffffff;
     --sbb-dark-grey: #1a1a1a;
     --clock-size: 100px;
-    --buffer: 4px; 
+    --buffer: 4px;
 }
 
 body {
@@ -108,20 +108,21 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
     /* --- ADJUST THE LINE POSITION HERE --- */
     background: linear-gradient(to bottom,
-        transparent 52px,   /* Start of line (Raise/Lower this) */
-        var(--sbb-blue) 52px,
-        var(--sbb-blue) 58px, /* End of line (Raise/Lower this) */
-        transparent 58px
+                                transparent 52px,
+                                var(--sbb-blue) 52.5px, /* Added a 0.5px buffer for mobile scaling */
+                                var(--sbb-blue) 57.5px,
+                                transparent 58px
     );
     background-repeat: repeat-x;
 }
 
 .horiz-step {
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    min-width: 120px; 
-    position: relative; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
+    flex-shrink: 0; /* CRITICAL for mobile: stops the stations from overlapping */
+    position: relative;
     z-index: 2;
 }
 
@@ -132,7 +133,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     position: absolute;
     content: '';
     position: absolute;
-    top: 52px; 
+    top: 52px;
     left: 0;
     right: 0;
     height: 6px;
@@ -143,7 +144,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 /* FIXING THE EDGE EXTENSIONS */
 /* We use a huge negative margin + padding combo to touch the walls without breaking scroll */
 .horiz-step:first-child::before {
-    left: -1000px; 
+    left: -1000px;
     padding-left: 1000px;
 }
 
@@ -164,33 +165,33 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     position: relative;
 }
 .horiz-step.current-stop .horiz-node {
-    background: var(--sbb-red); border-color: var(--sbb-red); box-shadow: 0 0 10px var(--sbb-red); 
+    background: var(--sbb-red); border-color: var(--sbb-red); box-shadow: 0 0 10px var(--sbb-red);
     width: 18px; height: 18px; margin-top: 3px; margin-bottom: 13px;
     flex-shrink: 0;
 }
 
 .horiz-station {
-    position: absolute; 
-    top: 75px; 
-    left: 50%; 
-    transform: rotate(45deg); 
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    transform: rotate(45deg);
     transform-origin: top left;
-    white-space: nowrap; 
-    font-size: 1.05rem; 
-    font-weight: bold; 
+    white-space: nowrap;
+    font-size: 1.05rem;
+    font-weight: bold;
     width: 250px;
     text-align: left;
 }
 
 .horiz-plat {
-    position: absolute; 
-    top: 115px; 
-    left: 50%; 
-    transform: rotate(45deg); 
+    position: absolute;
+    top: 115px;
+    left: 50%;
+    transform: rotate(45deg);
     transform-origin: top left;
-    white-space: nowrap; 
-    font-size: 0.85rem; 
-    color: #aaa; 
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: #aaa;
     font-weight: bold;
     width: 250px;
     text-align: left;
@@ -209,6 +210,6 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .spec-label { display: block; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
 .spec-val { font-size: 1rem; font-weight: bold; color: #fff; }
 .status-badge { display: inline-block; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-right: 10px; margin-top: 10px; }
-.ontime-bg { background: #2d5a27; color: #fff; } 
-.delay-bg { background: #9b1c1c; color: #fff; } 
+.ontime-bg { background: #2d5a27; color: #fff; }
+.delay-bg { background: #9b1c1c; color: #fff; }
 .track-bg { background: #c2780e; color: #fff; }
