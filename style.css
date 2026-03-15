@@ -95,84 +95,108 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 .text-red { color: #ff5555; font-weight: bold; }
 
 /* FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER */
+/* --- THE "SEGMENTED LINE" MOBILE FIX --- */
+
+/* --- FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER --- */
 .route-list-wrapper {
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 20px 0 180px 0;
+    padding: 0 0 160px 0;
     position: relative;
-    scrollbar-width: thin;
-    scrollbar-color: var(--sbb-red) #333;
-    flex-grow: 1;
-    mask-image: linear-gradient(to right, black 0%, black 100%);
-
-    /* --- ADJUST THE LINE POSITION HERE --- */
-    background: linear-gradient(to bottom,
-                                transparent 52px,
-                                var(--sbb-blue) 52.5px, /* Added a 0.5px buffer for mobile scaling */
-                                var(--sbb-blue) 57.5px,
-                                transparent 58px
-    );
-    background-repeat: repeat-x;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    background: none; /* No more gradients breaking on mobile */
 }
 
 .horiz-step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 140px;
-    flex-shrink: 0; /* CRITICAL for mobile: stops the stations from overlapping */
+    flex: 0 0 140px; /* Locks the column width for mobile */
     position: relative;
     z-index: 2;
 }
 
-/* The Blue Connecting Line */
-.horiz-step::before {
-    display: none !important; /* This removes the "second" line */
+/* 1. THE MAIN LINE: Connects the center of THIS dot to the NEXT dot */
+.horiz-step::after {
     content: '';
     position: absolute;
-    content: '';
-    position: absolute;
-    top: 52px;
-    left: 0;
-    right: 0;
+    top: 62px; /* Dead center with the nodes */
+    left: 50%;
+    width: 100%;
     height: 6px;
-    background: var(--sbb-blue);
+    background-color: var(--sbb-blue);
     z-index: 1;
 }
 
-/* FIXING THE EDGE EXTENSIONS */
-/* We use a huge negative margin + padding combo to touch the walls without breaking scroll */
+/* 2. THE LEFT EXTENSION: Makes the line shoot off the left side of the screen */
 .horiz-step:first-child::before {
-    left: -1000px;
-    padding-left: 1000px;
+    content: '';
+    position: absolute;
+    top: 62px;
+    right: 50%;
+    width: 2000px; /* Infinite left line */
+    height: 6px;
+    background-color: var(--sbb-blue);
+    z-index: 1;
 }
 
-.horiz-step:last-child::before {
-    right: -1000px;
-    padding-right: 1000px;
+/* 3. THE RIGHT EXTENSION: Makes the line shoot off the right side of the screen */
+.horiz-step:last-child::after {
+    width: 2000px; /* Infinite right line */
 }
 
-.horiz-time { font-weight: bold; font-size: 1rem; height: 40px; text-align: center; }
-.horiz-delay { font-size: 0.75rem; color: #ff5555; display: block; }
+.horiz-time {
+    font-weight: bold;
+    font-size: 1rem;
+    height: 40px; /* Strict height to anchor the dots below */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 5px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    z-index: 3;
+}
 
-/* The dot on the line */
+.horiz-delay {
+    font-size: 0.75rem;
+    color: #ff5555;
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* THE DOTS - Math is perfectly synced to 57px */
 .horiz-node {
-    width: 14px; height: 14px; background: white; border: 3px solid var(--sbb-blue); border-radius: 50%;
-    margin-top: 5px; margin-bottom: 15px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border: 4px solid var(--sbb-blue);
+    border-radius: 50%;
+    box-sizing: border-box;
+    margin-top: 12px;
     flex-shrink: 0;
     z-index: 3;
     position: relative;
 }
+
 .horiz-step.current-stop .horiz-node {
-    background: var(--sbb-red); border-color: var(--sbb-red); box-shadow: 0 0 10px var(--sbb-red);
-    width: 18px; height: 18px; margin-top: 3px; margin-bottom: 13px;
-    flex-shrink: 0;
+    background: var(--sbb-red);
+    border-color: var(--sbb-red);
+    box-shadow: 0 0 10px var(--sbb-red);
+    width: 22px;
+    height: 22px;
+    margin-top: 9px; /* Slightly less margin to keep it perfectly centered on the line */
 }
 
+/* THE TEXT */
 .horiz-station {
     position: absolute;
-    top: 55px;
+    top: 85px;
     left: 50%;
     transform: rotate(45deg);
     transform-origin: top left;
@@ -185,7 +209,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 .horiz-plat {
     position: absolute;
-    top: 115px;
+    top: 110px;
     left: 50%;
     transform: rotate(45deg);
     transform-origin: top left;
@@ -196,6 +220,7 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
     width: 250px;
     text-align: left;
 }
+
 
 /* UI Elements */
 #modalTrainName { display: flex; align-items: center; gap: 15px; margin: 0; }
