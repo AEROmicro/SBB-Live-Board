@@ -96,16 +96,24 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 /* FULL-WIDTH REFINED AUTOMATIC TIMELINE WRAPPER */
 .route-list-wrapper {
-    display: flex; 
-    overflow-x: auto; 
+    display: flex;
+    overflow-x: auto;
     overflow-y: hidden;
-    padding: 20px 0 180px 0; 
+    padding: 20px 0 180px 0;
     position: relative;
-    scrollbar-width: thin; 
+    scrollbar-width: thin;
     scrollbar-color: var(--sbb-red) #333;
     flex-grow: 1;
-    /* This ensures the line doesn't bleed out of the modal area */
     mask-image: linear-gradient(to right, black 0%, black 100%);
+
+    /* --- ADJUST THE LINE POSITION HERE --- */
+    background: linear-gradient(to bottom,
+        transparent 52px,   /* Start of line (Raise/Lower this) */
+        var(--sbb-blue) 52px,
+        var(--sbb-blue) 58px, /* End of line (Raise/Lower this) */
+        transparent 58px
+    );
+    background-repeat: repeat-x;
 }
 
 .horiz-step {
@@ -119,6 +127,9 @@ button.update-btn:hover, button.util-btn:hover { background: var(--sbb-red); col
 
 /* The Blue Connecting Line */
 .horiz-step::before {
+    display: none !important; /* This removes the "second" line */
+    content: '';
+    position: absolute;
     content: '';
     position: absolute;
     top: 52px; 
